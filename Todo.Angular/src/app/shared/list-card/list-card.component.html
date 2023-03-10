@@ -1,0 +1,13 @@
+<div class="list-card">
+  <div class="title-bar">
+    <h2>{{ title }}</h2>
+    <ion-icon
+      name="add-circle"
+      class="title-icon"
+      (click)="onAddClick()"
+    ></ion-icon>
+  </div>
+  <div class="list-body">
+    <ng-content></ng-content>
+  </div>
+</div>

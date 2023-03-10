@@ -1,0 +1,21 @@
+<div class="modal-card">
+  <div class="modal-card-title">
+    <h2>{{ title }}</h2>
+    <ion-icon
+      name="close-circle"
+      class="title-icon"
+      (click)="onCloseClick()"
+    ></ion-icon>
+  </div>
+  <div class="modal-card-body">
+    <ng-content></ng-content>
+  </div>
+  <div class="modal-card-footer">
+    <button class="clear-btn" (click)="onCancelClick()">
+      {{ isEdit ? "DELETE" : "CANCEL" }}
+    </button>
+    <button class="submit-btn" (click)="onAddClick()">
+      {{ isEdit ? "UPDATE" : "ADD" }}
+    </button>
+  </div>
+</div>

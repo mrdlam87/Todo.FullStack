@@ -1,0 +1,3 @@
+<app-list-card title="Todo" (onAddEvent)="addTodo()">
+  <app-todo-item *ngFor="let todo of todos" [todo]="todo"></app-todo-item>
+</app-list-card>

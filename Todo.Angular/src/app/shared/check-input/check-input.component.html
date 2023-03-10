@@ -1,0 +1,15 @@
+<div class="check-input">
+  <ion-icon
+    *ngIf="checked"
+    name="checkbox"
+    class="check-icon"
+    (click)="onClick()"
+  ></ion-icon>
+  <ion-icon
+    *ngIf="!checked"
+    name="square-outline"
+    class="check-icon"
+    (click)="onClick()"
+  ></ion-icon>
+  <label>{{ label }}</label>
+</div>

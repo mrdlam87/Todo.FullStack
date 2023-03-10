@@ -1,0 +1,10 @@
+<div class="item-container">
+  <h3
+    class="user-item"
+    [ngClass]="selected ? 'selected' : ''"
+    (click)="onUserClicked()"
+  >
+    {{ user.fullName }}
+  </h3>
+  <p (click)="onEditClicked()">EDIT</p>
+</div>

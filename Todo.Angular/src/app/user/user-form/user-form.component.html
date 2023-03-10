@@ -1,0 +1,18 @@
+<app-modal-card
+  [title]="title"
+  (onClose)="onCloseClick()"
+  (onCancel)="onCancelClick()"
+  (onAdd)="onAddClick()"
+  [isEdit]="data.isEdit"
+>
+  <form [formGroup]="userForm">
+    <div class="div-text-input">
+      <label>Full Name</label>
+      <input
+        formControlName="fullName"
+        type="text"
+        placeholder="Enter full name"
+      />
+    </div>
+  </form>
+</app-modal-card>

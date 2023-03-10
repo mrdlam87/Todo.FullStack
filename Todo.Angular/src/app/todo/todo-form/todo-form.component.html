@@ -1,0 +1,26 @@
+<app-modal-card
+  [title]="title"
+  (onClose)="onCloseClick()"
+  (onCancel)="onCancelClick()"
+  (onAdd)="onAddClick()"
+  [isEdit]="data.isEdit"
+>
+  <form [formGroup]="todoForm">
+    <app-check-input
+      label="Completed"
+      formControlName="complete"
+    ></app-check-input>
+    <div class="div-text-input">
+      <label>Description</label>
+      <input
+        formControlName="description"
+        type="text"
+        placeholder="Enter description"
+      />
+    </div>
+    <div className="date-input">
+      <label>Date Completed</label>
+      <input formControlName="dateCompleted" type="date" />
+    </div>
+  </form>
+</app-modal-card>

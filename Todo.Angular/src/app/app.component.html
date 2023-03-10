@@ -1,0 +1,6 @@
+<app-modal-overlay *ngIf="isModalOpen"></app-modal-overlay>
+<app-modal *ngIf="isModalOpen" [content]="modalContent"> </app-modal>
+<div class="container padding-top-md grid grid--2-cols">
+  <app-user-card></app-user-card>
+  <app-todo-card></app-todo-card>
+</div>

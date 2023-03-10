@@ -1,7 +1,10 @@
 <div class="item-container">
   <div class="list-label-container">
     <form [formGroup]="todoForm">
-      <app-check-input formControlName="complete"></app-check-input>
+      <app-check-input
+        formControlName="complete"
+        (click)="onCheckClicked()"
+      ></app-check-input>
     </form>
     <h3 class="list-label">{{ todo.name }}</h3>
   </div>

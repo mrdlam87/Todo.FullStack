@@ -34,6 +34,14 @@ export class TodoItemComponent implements OnInit {
     this.modalService.setModalIsVisible(true);
   }
 
+  onCheckClicked() {
+    this.userService.setCurrentUserTodo(this.todo);
+    this.userService.updateUserTodo({
+      ...this.todo,
+      complete: this.todoForm.value.complete,
+    });
+  }
+
   private initForm() {
     this.todoForm = new FormGroup({
       complete: new FormControl(this.todo.complete),

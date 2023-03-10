@@ -19,13 +19,9 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  // API methods
+  // User API methods
   getUsers() {
     return this.http.get<User[]>('/api/users');
-  }
-
-  getUserTodos() {
-    return this.http.get<Todo[]>(`/api/users/${this.currentUser.id}/todos`);
   }
 
   addUser(user: UserDto) {
@@ -44,6 +40,11 @@ export class UserService {
     this.http
       .delete(`/api/users/${this.currentUser.id}`)
       .subscribe(() => this.usersChanged.emit());
+  }
+
+  // Todo API methods
+  getUserTodos() {
+    return this.http.get<Todo[]>(`/api/users/${this.currentUser.id}/todos`);
   }
 
   addUserTodo(todo: TodoDto) {

@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ModalService } from 'src/app/services/modal.service';
 import { UserService } from 'src/app/services/user.service';
 import { TodoFormComponent } from '../todo-form/todo-form.component';
@@ -9,13 +10,18 @@ import { Todo } from '../todo.model';
   templateUrl: './todo-item.component.html',
   styleUrls: ['./todo-item.component.scss'],
 })
-export class TodoItemComponent {
+export class TodoItemComponent implements OnInit {
   @Input() todo: Todo;
+  todoForm: FormGroup;
 
   constructor(
     private userService: UserService,
     private modalService: ModalService
   ) {}
+
+  ngOnInit(): void {
+    this.initForm();
+  }
 
   onEditClicked() {
     this.userService.setCurrentUserTodo(this.todo);
@@ -26,5 +32,11 @@ export class TodoItemComponent {
       },
     });
     this.modalService.setModalIsVisible(true);
+  }
+
+  private initForm() {
+    this.todoForm = new FormGroup({
+      complete: new FormControl(this.todo.complete),
+    });
   }
 }

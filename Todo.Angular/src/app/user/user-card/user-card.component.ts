@@ -18,7 +18,14 @@ export class UserCardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.users = this.userService.getUsers();
+    this.userService.usersChanged.subscribe(() =>
+      this.userService
+        .getUsers()
+        .subscribe((users: User[]) => (this.users = users))
+    );
+    this.userService
+      .getUsers()
+      .subscribe((users: User[]) => (this.users = users));
   }
 
   addUser() {

@@ -19,9 +19,14 @@ export class TodoCardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.userService.userSelected.subscribe((user: User) => {
-      this.todos = user.todos;
+    this.userService.userSelected.subscribe(() => {
+      this.userService
+        .getUserTodos()
+        .subscribe((todos) => (this.todos = todos));
     });
+    this.userService.todosChanged.subscribe(() =>
+      this.userService.getUserTodos().subscribe((todos) => (this.todos = todos))
+    );
   }
 
   addTodo() {

@@ -29,28 +29,34 @@ export class TodoFormComponent implements OnInit {
 
   onCancelClick() {
     this.modalService.modalIsVisibleChanged.next(false);
+    this.userService.deleteUserTodo();
   }
 
   onAddClick() {
     this.modalService.modalIsVisibleChanged.next(false);
-    console.log(this.todoForm.value);
+    this.data.isEdit
+      ? this.userService.updateUserTodo(this.todoForm.value)
+      : this.userService.addUserTodo(this.todoForm.value);
   }
 
   private initForm() {
-    let description = '';
+    let name = '';
     let dateCompleted = '';
     let complete = false;
 
     if (this.data.isEdit) {
       const currentTodo = this.userService.getCurrentUserTodo();
-      description = currentTodo.description;
+      name = currentTodo.name;
       dateCompleted = currentTodo.dateCompleted;
       complete = currentTodo.complete;
     }
 
     this.todoForm = new FormGroup({
-      description: new FormControl(description, Validators.required),
-      dateCompleted: new FormControl(dateCompleted, Validators.required),
+      name: new FormControl(name, Validators.required),
+      dateCompleted: new FormControl(
+        dateCompleted === '' ? null : dateCompleted, //Can't accept empty string
+        Validators.required
+      ),
       complete: new FormControl(complete),
     });
   }

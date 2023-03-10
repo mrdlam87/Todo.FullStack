@@ -1,37 +1,75 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { User } from '../user/user.model';
 import { Subject } from 'rxjs';
 import { getFormattedDate } from '../shared/utils/date';
 import { Todo } from '../todo/todo.model';
+import { TodoDto } from '../todo/todo-dto.model';
+import { UserDto } from '../user/user-dto.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  usersChanged = new Subject<User[]>();
+  usersChanged = new EventEmitter();
+  todosChanged = new EventEmitter();
   userSelected = new Subject<User>();
   private currentUser: User;
-  private users: User[] = [
-    {
-      id: '1',
-      fullName: 'Danny',
-      todos: [
-        {
-          description: 'Learn Angular',
-          dateCreated: getFormattedDate(new Date()),
-          dateCompleted: '',
-          complete: false,
-        },
-      ],
-    },
-    { id: '2', fullName: 'Simba', todos: [] },
-  ];
   private currentUserTodo: Todo;
 
+  constructor(private http: HttpClient) {}
+
+  // API methods
   getUsers() {
-    return this.users.slice();
+    return this.http.get<User[]>('/api/users');
   }
 
+  getUserTodos() {
+    return this.http.get<Todo[]>(`/api/users/${this.currentUser.id}/todos`);
+  }
+
+  addUser(user: UserDto) {
+    this.http
+      .post('/api/users', user)
+      .subscribe(() => this.usersChanged.emit());
+  }
+
+  updateUser(user: UserDto) {
+    this.http
+      .put(`/api/users/${this.currentUser.id}`, user)
+      .subscribe(() => this.usersChanged.emit());
+  }
+
+  deleteUser() {
+    this.http
+      .delete(`/api/users/${this.currentUser.id}`)
+      .subscribe(() => this.usersChanged.emit());
+  }
+
+  addUserTodo(todo: TodoDto) {
+    this.http
+      .post(`/api/users/${this.currentUser.id}/todos`, todo)
+      .subscribe(() => this.todosChanged.emit());
+  }
+
+  updateUserTodo(todo: TodoDto) {
+    this.http
+      .put(
+        `/api/users/${this.currentUser.id}/todos/${this.currentUserTodo.id}`,
+        todo
+      )
+      .subscribe(() => this.todosChanged.emit());
+  }
+
+  deleteUserTodo() {
+    this.http
+      .delete(
+        `/api/users/${this.currentUser.id}/todos/${this.currentUserTodo.id}`
+      )
+      .subscribe(() => this.todosChanged.emit());
+  }
+
+  // Application methods
   getCurrentUser() {
     return this.currentUser;
   }

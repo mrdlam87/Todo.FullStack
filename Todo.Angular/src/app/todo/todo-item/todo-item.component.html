@@ -1,6 +1,9 @@
 <div class="item-container">
   <div class="list-label-container">
-    <h3 class="list-label">{{ todo.description }}</h3>
+    <form [formGroup]="todoForm">
+      <app-check-input formControlName="complete"></app-check-input>
+    </form>
+    <h3 class="list-label">{{ todo.name }}</h3>
   </div>
   <p (click)="onEditClicked()">EDIT</p>
 </div>

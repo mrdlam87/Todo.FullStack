@@ -29,22 +29,25 @@ export class UserFormComponent implements OnInit {
 
   onCancelClick() {
     this.modalService.modalIsVisibleChanged.next(false);
+    this.userService.deleteUser();
   }
 
   onAddClick() {
     this.modalService.modalIsVisibleChanged.next(false);
-    console.log(this.userForm.value);
+    this.data.isEdit
+      ? this.userService.updateUser(this.userForm.value)
+      : this.userService.addUser(this.userForm.value);
   }
 
   private initForm() {
-    let fullName = '';
+    let name = '';
 
     if (this.data.isEdit) {
-      fullName = this.userService.getCurrentUser().fullName;
+      name = this.userService.getCurrentUser().name;
     }
 
     this.userForm = new FormGroup({
-      fullName: new FormControl(fullName, Validators.required),
+      name: new FormControl(name, Validators.required),
     });
   }
 }

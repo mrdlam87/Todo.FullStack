@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TodoApp.ServiceInterfaces;
-using TodoApp.ViewModels;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using TodoApp.API.ViewModels;
+using TodoApp.Application.Common.DTO;
+using TodoApp.Application.Services.Interfaces;
 
 namespace TodoApp.API.Controllers
 {
@@ -9,120 +11,103 @@ namespace TodoApp.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly ITodoService _todoService;
-        private ILogger<UsersController> _logger;
+        private readonly IMapper _mapper;
 
-        public UsersController(IUserService userService, ITodoService todoService, ILogger<UsersController> logger)
+        public UsersController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
-            _todoService = todoService;
-            _logger = logger;
+            _mapper = mapper;
         }
 
-        //  /users
         [HttpGet]
-        public async Task<IEnumerable<UserDTO>> GetAll() => await _userService.GetAllUsers();
-
-        //  /users/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserDTO>> Get(int id)
+        public async Task<ActionResult<IEnumerable<UserVm>>> GetAll()
         {
-            var userDto = await _userService.GetUser(id);
+            IEnumerable<UserDto> users = await _userService.GetAllUsers();
 
-            if (userDto is null)
-                return NotFound();
+            if (!users.Any())
+            {
+                return NoContent();
+            }
 
-            return Ok(userDto);
+            return Ok(_mapper.Map<IEnumerable<UserVm>>(users));
         }
 
-        //  /users/{id}/todos
-        [HttpGet("{id}/todos")]
-        public async Task<IEnumerable<TodoDTO>> GetTodosByUserId(int id)
-        {
-            return await _userService.GetTodosByUser(id);
-        }
-
-        //  /users/{userId}/todos/{todoId}
-        [HttpGet("{userId}/todos/{todoId}")]
-        public async Task<ActionResult<TodoDTO>> GetTodoByUserId(int userId, int todoId)
-        {
-            var todo = await _userService.GetSingleTodoByUser(userId, todoId);
-
-            if (todo is null)
-                return NotFound();
-
-            return Ok(todo);
-        }
-
-        //  /users
         [HttpPost]
-        public async Task<ActionResult<UserDTO>> Post(UserDTO userDto)
+        public async Task<ActionResult<UserVm>> CreateUser(UserVm userData)
         {
-            var user = await _userService.CreateUser(userDto);
-            return Ok(user);
+            UserDto user = await _userService.CreateUser(_mapper.Map<UserDto>(userData));
+
+            return Ok(_mapper.Map<UserVm>(user));
         }
 
-        //  /users/{id}/todos
-        [HttpPost("{id}/todos")]
-        public async Task<ActionResult<TodoDTO>> PostTodo(int id, TodoDTO todoDto)
-        {
-            var user = await _userService.GetUser(id);
-            if (user is null)
-                return NotFound();
 
-            todoDto.UserId = id;
-            var todo = await _todoService.CreateTodo(todoDto);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserVm>> GetUser(int id)
+        {
+            UserDto user = await _userService.GetUser(id);
+
+            return Ok(_mapper.Map<UserVm>(user));
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateUser(int id, UserVm userData)
+        {
+            UserDto user = await _userService.UpdateUser(id, _mapper.Map<UserDto>(userData));
+
+            return Ok(_mapper.Map<UserVm>(user));
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteUser(int id)
+        {
+            await _userService.DeleteUser(id);
+
+            return NoContent();
+        }
+
+        [HttpGet("{id}/todos")]
+        public async Task<ActionResult<IEnumerable<TodoVm>>> GetTodosByUserId(int id)
+        {
+            IEnumerable<TodoDto> todos = await _userService.GetTodosByUser(id);
+
+            if (!todos.Any())
+            {
+                return NoContent();
+            }
+
+            return Ok(_mapper.Map<IEnumerable<TodoVm>>(todos));
+        }
+
+        [HttpPost("{id}/todos")]
+        public async Task<ActionResult<TodoVm>> PostTodo(int id, TodoVm todoData)
+        {
+            TodoDto todo = await _userService.CreateUserTodo(id, _mapper.Map<TodoDto>(todoData));
+
             return Ok(todo);
         }
 
-        //  /users/{id}
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, UserDTO userDto)
+        [HttpGet("{userId}/todos/{todoId}")]
+        public async Task<ActionResult<TodoVm>> GetTodoByUserId(int userId, int todoId)
         {
-            bool successful = await _userService.UpdateUser(id, userDto);
+            TodoDto todo = await _userService.GetSingleTodoByUser(userId, todoId);
 
-            if (!successful)
-                return NotFound();
-
-            return NoContent();
+            return Ok(_mapper.Map<TodoVm>(todo));
         }
 
-        //  /users/{userId}/todos/{todoId}
         [HttpPut("{userId}/todos/{todoId}")]
-        public async Task<ActionResult> PutTodo(int userId, int todoId, TodoDTO todoDto)
+        public async Task<ActionResult<TodoVm>> PutTodo(int userId, int todoId, TodoVm todoData)
         {
-            todoDto.UserId = userId;
-            bool successful = await _userService.UpdateUserTodo(userId, todoId, todoDto);
+            TodoDto todo = await _userService.UpdateUserTodo(userId, todoId, _mapper.Map<TodoDto>(todoData));
 
-            if (!successful)
-                return NotFound();
-
-            return NoContent();
+            return Ok(_mapper.Map<TodoVm>(todo));
         }
 
-        //  /users/{id}
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            bool successful = await _userService.DeleteUser(id);
-
-            if (!successful)
-                return NotFound();
-
-            return NoContent();
-        }
-
-        //  /users/{userId}/todos/{todoId}
         [HttpDelete("{userId}/todos/{todoId}")]
         public async Task<ActionResult> DeleteTodo(int userId, int todoId)
         {
-            bool successful = await _userService.DeleteUserTodo(userId, todoId);
-
-            if (!successful)
-                return NotFound();
+            await _userService.DeleteUserTodo(userId, todoId);
 
             return NoContent();
         }
-
     }
 }

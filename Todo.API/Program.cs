@@ -1,14 +1,20 @@
 using Microsoft.EntityFrameworkCore;
-using TodoApp.ApiDatabase;
-using TodoApp.Dependencies;
-using TodoApp.ServiceInterfaces;
+using TodoApp.API.Middleware;
+using TodoApp.Application.Common.Interfaces;
+using TodoApp.Application.Services.Implementation;
+using TodoApp.Application.Services.Interfaces;
+using TodoApp.Infrastructure.Data;
+using TodoApp.Infrastructure.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddDbContext<ApiDbContext>(options => 
+builder.Services.AddScoped<IValidationService, ValidationService>();
+builder.Services.AddScoped<IValidator, CustomValidator>();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
@@ -25,6 +31,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -41,6 +48,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapControllers();
 

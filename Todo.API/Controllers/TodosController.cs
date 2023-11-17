@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TodoApp.ServiceInterfaces;
-using TodoApp.ViewModels;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using TodoApp.API.ViewModels;
+using TodoApp.Application.Common.DTO;
+using TodoApp.Application.Services.Interfaces;
 
 namespace TodoApp.API.Controllers
 {
@@ -9,57 +11,50 @@ namespace TodoApp.API.Controllers
     public class TodosController : ControllerBase
     {
         private readonly ITodoService _todoService;
-        private ILogger<TodosController> _logger;
-        public TodosController(ITodoService todoService, ILogger<TodosController> logger)
+        private readonly IMapper _mapper;
+
+        public TodosController(ITodoService todoService, IMapper mapper)
         {
             _todoService = todoService;
-            _logger = logger;
+            _mapper = mapper;
         }
 
-        //  /todos
         [HttpGet]
-        public async Task<IEnumerable<TodoDTO>> GetAll() => await _todoService.GetAllTodo();
-
-        //  /todos/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<TodoDTO>> Get(int id)
+        public async Task<IEnumerable<TodoVm>> GetAllTodos()
         {
-            var todoDto = await _todoService.GetTodo(id);
+            IEnumerable<TodoDto> todos = await _todoService.GetAllTodos();
 
-            if (todoDto is null)
-                return NotFound();
-
-            return Ok(todoDto);
+            return _mapper.Map<IEnumerable<TodoVm>>(todos);
         }
 
-        //  /todos
         [HttpPost]
-        public async Task<ActionResult<TodoDTO>> Post(TodoDTO todoDto)
+        public async Task<ActionResult<TodoVm>> CreateTodo(TodoVm todoData)
         {
-            var todo = await _todoService.CreateTodo(todoDto);
-            return Ok(todo);
+            TodoDto todo = await _todoService.CreateTodo(_mapper.Map<TodoDto>(todoData));
+
+            return Ok(_mapper.Map<TodoVm>(todo));
         }
 
-        //  /todos/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<TodoVm>> GetTodo(int id)
+        {
+            TodoDto todo = await _todoService.GetTodo(id);
+
+            return Ok(_mapper.Map<TodoVm>(todo));
+        }
+
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, TodoDTO todoDto)
+        public async Task<ActionResult<TodoVm>> Put(int id, TodoVm todoData)
         {
-            bool successful = await _todoService.UpdateTodo(id, todoDto);
+            TodoDto todo = await _todoService.UpdateTodo(id, _mapper.Map<TodoDto>(todoData));
 
-            if (!successful)
-                return NotFound();
-
-            return NoContent();
+            return Ok(_mapper.Map<TodoVm>(todo));
         }
 
-        //  /todos/{id}
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            bool successful = await _todoService.DeleteTodo(id);
-
-            if (!successful)
-                return NotFound();
+            await _todoService.DeleteTodo(id);
 
             return NoContent();
         }
